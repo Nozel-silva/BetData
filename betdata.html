@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BetData — Shape the Future of Football Betting</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2eb;
+    --green: #b8ff57;
+    --green-dim: #7ab833;
+    --gray: #1a1a1a;
+    --gray-mid: #2e2e2e;
+    --gray-light: #555;
+    --text-muted: #888;
+    --accent: #ff5733;
+    --border: rgba(255,255,255,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(184,255,87,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,255,87,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridPulse 8s ease-in-out infinite;
+  }
+
+  @keyframes gridPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(184,255,87,0.08) 0%, transparent 70%);
+    top: -100px;
+    right: -100px;
+    pointer-events: none;
+    animation: glowFloat 6s ease-in-out infinite;
+  }
+
+  @keyframes glowFloat {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-30px) scale(1.05); }
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 48px;
+    position: relative;
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--white);
+  }
+
+  .logo span { color: var(--green); }
+
+  .nav-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    border: 1px solid var(--green);
+    padding: 6px 14px;
+    letter-spacing: 1px;
+    animation: borderPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes borderPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(184,255,87,0); }
+    50% { box-shadow: 0 0 12px 2px rgba(184,255,87,0.15); }
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 48px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--green);
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 10vw, 140px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+
+  .hero-title .highlight {
+    color: var(--green);
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-title .highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--green);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: lineReveal 0.6s ease forwards 1.2s;
+  }
+
+  @keyframes lineReveal {
+    to { transform: scaleX(1); }
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.6s;
+  }
+
+  .hero-cta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.8s;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--white);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-primary:hover::before { transform: translateX(0); }
+  .btn-primary span { position: relative; z-index: 1; }
+
+  .hero-stat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .hero-stat strong {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--white);
+    letter-spacing: 2px;
+  }
+
+  .hero-bottom {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    padding: 32px 48px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 10;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1s;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TICKER ── */
+  .ticker {
+    background: var(--green);
+    padding: 12px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    display: inline-flex;
+    gap: 60px;
+    animation: ticker 20s linear infinite;
+  }
+
+  .ticker span {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--black);
+  }
+
+  .ticker-dot {
+    color: var(--black);
+    opacity: 0.4;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── SURVEY SECTION ── */
+  #survey {
+    padding: 80px 0;
+    max-width: 780px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--green);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-bar-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--black);
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .progress-track {
+    height: 3px;
+    background: var(--gray-mid);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--green);
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -2px;
+    width: 8px;
+    height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  /* ── SURVEY STEPS ── */
+  .survey-step {
+    display: none;
+    animation: stepIn 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .survey-step.active { display: block; }
+
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .step-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: rgba(184,255,87,0.08);
+    line-height: 1;
+    margin-bottom: -20px;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .step-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  /* ── QUESTIONS ── */
+  .question {
+    margin-bottom: 36px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: qFadeIn 0.4s ease forwards;
+  }
+
+  .question:nth-child(1) { animation-delay: 0.05s; }
+  .question:nth-child(2) { animation-delay: 0.1s; }
+  .question:nth-child(3) { animation-delay: 0.15s; }
+  .question:nth-child(4) { animation-delay: 0.2s; }
+  .question:nth-child(5) { animation-delay: 0.25s; }
+
+  @keyframes qFadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 16px;
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+  }
+
+  .question-label .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Radio/Checkbox options */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--green);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+    z-index: 0;
+  }
+
+  .option-item:hover { border-color: rgba(184,255,87,0.4); }
+  .option-item:hover::before { transform: scaleX(0.05); }
+
+  .option-item.selected {
+    border-color: var(--green);
+    background: rgba(184,255,87,0.06);
+  }
+
+  .option-item.selected::before { transform: scaleX(0.04); }
+
+  .option-item input[type="radio"],
+  .option-item input[type="checkbox"] {
+    display: none;
+  }
+
+  .option-box {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--gray-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .option-item.selected .option-box {
+    border-color: var(--green);
+    background: var(--green);
+  }
+
+  .option-box::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--black);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .option-item.selected .option-box::after { opacity: 1; }
+
+  .option-text {
+    font-size: 14px;
+    color: var(--white);
+    position: relative;
+    z-index: 1;
+    transition: color 0.2s;
+  }
+
+  /* Range input */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Text area */
+  .survey-textarea {
+    width: 100%;
+    background: var(--gray);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .survey-textarea:focus { border-color: rgba(184,255,87,0.5); }
+  .survey-textarea::placeholder { color: var(--gray-light); }
+
+  /* Checkbox multi */
+  .multi-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* ── NAV BUTTONS ── */
+  .step-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-back {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 14px 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+
+  .btn-back:hover { border-color: var(--gray-light); color: var(--white); }
+
+  .btn-next {
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    padding: 14px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-next::after {
+    content: '→';
+    margin-left: 10px;
+    transition: transform 0.2s ease;
+    display: inline-block;
+  }
+
+  .btn-next:hover { background: var(--white); transform: translateY(-1px); }
+  .btn-next:hover::after { transform: translateX(4px); }
+
+  /* ── EMAIL INPUT ── */
+  .email-wrap {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .email-input {
+    width: 100%;
+    background: var(--gray);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 18px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .email-input:focus { border-color: rgba(184,255,87,0.6); }
+  .email-input::placeholder { color: var(--gray-light); }
+
+  /* ── REWARD STEP ── */
+  .reward-box {
+    border: 1px solid var(--green);
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+
+  .reward-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(184,255,87,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .reward-icon {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    color: var(--green);
+    line-height: 1;
+    margin-bottom: 12px;
+    animation: iconPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+
+  @keyframes iconPop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .reward-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .reward-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 400px;
+    margin: 0 auto 24px;
+  }
+
+  .reward-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    text-align: left;
+    margin-bottom: 32px;
+  }
+
+  .reward-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .reward-feature::before {
+    content: '✓';
+    color: var(--green);
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── SUCCESS ── */
+  #success {
+    display: none;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px;
+    flex-direction: column;
+  }
+
+  #success.visible { display: flex; }
+
+  .success-ring {
+    width: 100px;
+    height: 100px;
+    border: 2px solid var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 32px;
+    animation: ringExpand 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+
+  @keyframes ringExpand {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .success-check {
+    font-size: 36px;
+    color: var(--green);
+    animation: checkPop 0.4s ease forwards 0.3s;
+    opacity: 0;
+  }
+
+  @keyframes checkPop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .success-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    animation: fadeUp 0.6s ease forwards 0.4s;
+    opacity: 0;
+  }
+
+  .success-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 400px;
+    line-height: 1.7;
+    animation: fadeUp 0.6s ease forwards 0.6s;
+    opacity: 0;
+    margin-bottom: 40px;
+  }
+
+  .success-token {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--gray);
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 14px 24px;
+    letter-spacing: 2px;
+    animation: fadeUp 0.6s ease forwards 0.8s;
+    opacity: 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+  }
+
+  .footer-logo span { color: var(--green); }
+
+  .footer-legal {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── RESPONSIVENESS ── */
+  @media (max-width: 600px) {
+    nav { padding: 20px 20px; }
+    .hero-content { padding: 40px 20px; }
+    .hero-bottom { gap: 30px; padding: 24px 20px; }
+    #survey { padding-left: 20px; padding-right: 20px; }
+    .multi-options { grid-template-columns: 1fr; }
+    .options-grid { grid-template-columns: 1fr; }
+    .reward-features { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+
+  /* VALIDATION */
+  .error-msg {
+    font-size: 12px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    display: none;
+  }
+
+  .error-msg.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+
+  <nav>
+    <div class="logo">BET<span>DATA</span></div>
+    <div class="nav-badge">OPEN SURVEY · 2025</div>
+  </nav>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">// FOOTBALL BETTING RESEARCH PANEL</div>
+    <h1 class="hero-title">
+      YOUR OPINION<br>
+      <span class="highlight">SHAPES THE GAME</span>
+    </h1>
+    <p class="hero-sub">
+      Tell us how you bet on goal markets. Your insights go directly to betting companies — and you walk away with free BetData Pro access.
+    </p>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="startSurvey()">
+        <span>Take the survey — it's free</span>
+      </button>
+      <div class="hero-stat">
+        <strong>4 MIN</strong>
+        avg. completion
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-bottom">
+    <div class="hero-stat">
+      <strong>16</strong>
+      questions
+    </div>
+    <div class="hero-stat">
+      <strong>100%</strong>
+      anonymous
+    </div>
+    <div class="hero-stat">
+      <strong>FREE</strong>
+      BetData Pro access
+    </div>
+  </div>
+</section>
+
+<!-- ══ TICKER ══ -->
+<div class="ticker">
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
+
+<!-- ══ SURVEY ══ -->
+<section id="survey" style="display:none;">
+  <div class="progress-bar-wrap">
+    <div class="progress-meta">
+      <span id="progressLabel">Section 1 of 6</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- STEP 1: Gate -->
+  <div class="survey-step active" data-step="1">
+    <div class="step-number">01</div>
+    <h2 class="step-title">Quick check</h2>
+    <p class="step-desc">Just one question before we begin.</p>
+
+    <div class="question">
+      <div class="question-label">
+        <span class="q-num">Q1</span>
+        <span>Do you bet on football (soccer) matches?</span>
+      </div>
+      <div class="options" data-type="radio" data-required="true" id="q1">
+        <label class="option-item" onclick="selectOption(this,'q1')">
+          <input type="radio" name="q1" value="regularly">
+          <div class="option-box"></div>
+          <span class="option-text">Yes, regularly</span>
+        </label>
+        <label class="option-item" onclick="selectOption(this,'q1')">
+          <input type="radio" name="q1" value="occasionally">
+          <div class="option-box"></div>
+          <span class="option-text">Yes, occasionally</span>
+        </label>
+        <label class="option-item" onclick="selectOption(this,'q1','exit')">
+          <input type="radio" name="q1" value="no">
+          <div class="option-box"></div>
+          <span class="option-text">No — I don't bet on football</span>
+        </label>
+      </div>
+      <p class="error-msg" id="err-q1">Please select an option to continue.</p>
+    </div>
+
+    <div class="step-nav">
+      <div></div>
+      <button class="btn-next" onclick="nextStep(1)">Continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Profile -->
+  <div class="survey-step" data-step="2">
+    <div class="step-number">02</div>
+    <h2 class="step-title">Your profile</h2>
+    <p class="step-desc">Help us understand your betting background.</p>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q2</span><span>How long have you been betting on football?</span></div>
+      <div class="options" data-type="radio" data-required="true" id="q2">
+        <label class="option-item" onclick="selectOption(this,'q2')"><input type="radio" name="q2" value="lt1"><div class="option-box"></div><span class="option-text">Less than 1 year</span></label>
+        <label class="option-item" onclick="selectOption(this,'q2')"><input type="radio" name="q2" value="1-3"><div class="option-box"></div><span class="option-text">1–3 years</span></label>
+        <label class="option-item" onclick="selectOption(this,'q2')"><input type="radio" name="q2" value="3-5"><div class="option-box"></div><span class="option-text">3–5 years</span></label>
+        <label class="option-item" onclick="selectOption(this,'q2')"><input type="radio" name="q2" value="5+"><div class="option-box"></div><span class="option-text">5+ years</span></label>
+      </div>
+      <p class="error-msg" id="err-q2">Please select an option.</p>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q3</span><span>How often do you place bets per week?</span></div>
+      <div class="options options-grid" data-type="radio" data-required="true" id="q3">
+        <label class="option-item" onclick="selectOption(this,'q3')"><input type="radio" name="q3" value="1-2"><div class="option-box"></div><span class="option-text">1–2 times</span></label>
+        <label class="option-item" onclick="selectOption(this,'q3')"><input type="radio" name="q3" value="3-5"><div class="option-box"></div><span class="option-text">3–5 times</span></label>
+        <label class="option-item" onclick="selectOption(this,'q3')"><input type="radio" name="q3" value="daily"><div class="option-box"></div><span class="option-text">Daily</span></label>
+        <label class="option-item" onclick="selectOption(this,'q3')"><input type="radio" name="q3" value="multiple"><div class="option-box"></div><span class="option-text">Multiple times daily</span></label>
+      </div>
+      <p class="error-msg" id="err-q3">Please select an option.</p>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q4</span><span>What is your typical weekly betting budget?</span></div>
+      <div class="options options-grid" data-type="radio" data-required="true" id="q4">
+        <label class="option-item" onclick="selectOption(this,'q4')"><input type="radio" name="q4" value="u10"><div class="option-box"></div><span class="option-text">Under $10</span></label>
+        <label class="option-item" onclick="selectOption(this,'q4')"><input type="radio" name="q4" value="10-50"><div class="option-box"></div><span class="option-text">$10–$50</span></label>
+        <label class="option-item" onclick="selectOption(this,'q4')"><input type="radio" name="q4" value="50-200"><div class="option-box"></div><span class="option-text">$50–$200</span></label>
+        <label class="option-item" onclick="selectOption(this,'q4')"><input type="radio" name="q4" value="200+"><div class="option-box"></div><span class="option-text">$200+</span></label>
+      </div>
+      <p class="error-msg" id="err-q4">Please select an option.</p>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q5</span><span>Which leagues do you bet on most? (select all that apply)</span></div>
+      <div class="multi-options" data-type="checkbox" id="q5">
+        <label class="option-item" onclick="toggleCheckbox(this,'q5')"><input type="checkbox" name="q5" value="epl"><div class="option-box"></div><span class="option-text">Premier League</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q5')"><input type="checkbox" name="q5" value="laliga"><div class="option-box"></div><span class="option-text">La Liga</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q5')"><input type="checkbox" name="q5" value="seriea"><div class="option-box"></div><span class="option-text">Serie A</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q5')"><input type="checkbox" name="q5" value="bundesliga"><div class="option-box"></div><span class="option-text">Bundesliga</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q5')"><input type="checkbox" name="q5" value="ucl"><div class="option-box"></div><span class="option-text">Champions League</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q5')"><input type="checkbox" name="q5" value="local"><div class="option-box"></div><span class="option-text">Local / African leagues</span></label>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" onclick="prevStep(2)">Back</button>
+      <button class="btn-next" onclick="nextStep(2)">Continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Betting Habits -->
+  <div class="survey-step" data-step="3">
+    <div class="step-number">03</div>
+    <h2 class="step-title">How you bet</h2>
+    <p class="step-desc">Your habits and decision-making process.</p>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q6</span><span>What types of bets do you place most often?</span></div>
+      <div class="multi-options" data-type="checkbox" id="q6">
+        <label class="option-item" onclick="toggleCheckbox(this,'q6')"><input type="checkbox" name="q6" value="goal_markets"><div class="option-box"></div><span class="option-text">Goal markets</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q6')"><input type="checkbox" name="q6" value="match_result"><div class="option-box"></div><span class="option-text">Match result (1X2)</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q6')"><input type="checkbox" name="q6" value="btts"><div class="option-box"></div><span class="option-text">Both teams to score</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q6')"><input type="checkbox" name="q6" value="acca"><div class="option-box"></div><span class="option-text">Accumulators</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q6')"><input type="checkbox" name="q6" value="cards"><div class="option-box"></div><span class="option-text">Cards / corners</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q6')"><input type="checkbox" name="q6" value="player_props"><div class="option-box"></div><span class="option-text">Player props</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q7</span><span>Which platform do you use most?</span></div>
+      <div class="options" data-type="radio" data-required="true" id="q7">
+        <label class="option-item" onclick="selectOption(this,'q7')"><input type="radio" name="q7" value="bet9ja"><div class="option-box"></div><span class="option-text">Bet9ja</span></label>
+        <label class="option-item" onclick="selectOption(this,'q7')"><input type="radio" name="q7" value="sportybet"><div class="option-box"></div><span class="option-text">SportyBet</span></label>
+        <label class="option-item" onclick="selectOption(this,'q7')"><input type="radio" name="q7" value="1xbet"><div class="option-box"></div><span class="option-text">1xBet</span></label>
+        <label class="option-item" onclick="selectOption(this,'q7')"><input type="radio" name="q7" value="betway"><div class="option-box"></div><span class="option-text">Betway</span></label>
+        <label class="option-item" onclick="selectOption(this,'q7')"><input type="radio" name="q7" value="other"><div class="option-box"></div><span class="option-text">Other</span></label>
+      </div>
+      <p class="error-msg" id="err-q7">Please select an option.</p>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q8</span><span>Where do you get your betting information?</span></div>
+      <div class="multi-options" data-type="checkbox" id="q8">
+        <label class="option-item" onclick="toggleCheckbox(this,'q8')"><input type="checkbox" name="q8" value="stats"><div class="option-box"></div><span class="option-text">Stats websites</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q8')"><input type="checkbox" name="q8" value="tipster"><div class="option-box"></div><span class="option-text">Tipster channels</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q8')"><input type="checkbox" name="q8" value="social"><div class="option-box"></div><span class="option-text">Social media</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q8')"><input type="checkbox" name="q8" value="own"><div class="option-box"></div><span class="option-text">Own research</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q8')"><input type="checkbox" name="q8" value="friends"><div class="option-box"></div><span class="option-text">Friends / community</span></label>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" onclick="prevStep(3)">Back</button>
+      <button class="btn-next" onclick="nextStep(3)">Continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Goal Markets (core) -->
+  <div class="survey-step" data-step="4">
+    <div class="step-number">04</div>
+    <h2 class="step-title">Goal markets</h2>
+    <p class="step-desc">The heart of the survey — your goal market preferences.</p>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q9</span><span>Which goal markets do you bet on most? (select all that apply)</span></div>
+      <div class="multi-options" data-type="checkbox" id="q9">
+        <label class="option-item" onclick="toggleCheckbox(this,'q9')"><input type="checkbox" name="q9" value="ou25"><div class="option-box"></div><span class="option-text">Over/Under 2.5</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q9')"><input type="checkbox" name="q9" value="ou15"><div class="option-box"></div><span class="option-text">Over/Under 1.5</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q9')"><input type="checkbox" name="q9" value="btts"><div class="option-box"></div><span class="option-text">BTTS</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q9')"><input type="checkbox" name="q9" value="exact"><div class="option-box"></div><span class="option-text">Exact score</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q9')"><input type="checkbox" name="q9" value="first_scorer"><div class="option-box"></div><span class="option-text">First goalscorer</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q9')"><input type="checkbox" name="q9" value="anytime"><div class="option-box"></div><span class="option-text">Anytime goalscorer</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q9')"><input type="checkbox" name="q9" value="asian"><div class="option-box"></div><span class="option-text">Asian handicap</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q9')"><input type="checkbox" name="q9" value="half_goals"><div class="option-box"></div><span class="option-text">Half-time goals</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q10</span><span>What is the main reason you choose a goal market?</span></div>
+      <div class="options" data-type="radio" data-required="true" id="q10">
+        <label class="option-item" onclick="selectOption(this,'q10')"><input type="radio" name="q10" value="better_odds"><div class="option-box"></div><span class="option-text">Better odds</span></label>
+        <label class="option-item" onclick="selectOption(this,'q10')"><input type="radio" name="q10" value="win_rate"><div class="option-box"></div><span class="option-text">Higher win rate</span></label>
+        <label class="option-item" onclick="selectOption(this,'q10')"><input type="radio" name="q10" value="easier"><div class="option-box"></div><span class="option-text">Easier to predict</span></label>
+        <label class="option-item" onclick="selectOption(this,'q10')"><input type="radio" name="q10" value="tipster"><div class="option-box"></div><span class="option-text">Recommended by tipster</span></label>
+        <label class="option-item" onclick="selectOption(this,'q10')"><input type="radio" name="q10" value="stats"><div class="option-box"></div><span class="option-text">I follow stats closely</span></label>
+      </div>
+      <p class="error-msg" id="err-q10">Please select an option.</p>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q11</span><span>Which match stat influences your goal bet most?</span></div>
+      <div class="options" data-type="radio" data-required="true" id="q11">
+        <label class="option-item" onclick="selectOption(this,'q11')"><input type="radio" name="q11" value="avg_goals"><div class="option-box"></div><span class="option-text">Team average goals scored / conceded</span></label>
+        <label class="option-item" onclick="selectOption(this,'q11')"><input type="radio" name="q11" value="h2h"><div class="option-box"></div><span class="option-text">Head-to-head history</span></label>
+        <label class="option-item" onclick="selectOption(this,'q11')"><input type="radio" name="q11" value="form"><div class="option-box"></div><span class="option-text">Recent form</span></label>
+        <label class="option-item" onclick="selectOption(this,'q11')"><input type="radio" name="q11" value="home_away"><div class="option-box"></div><span class="option-text">Home / away record</span></label>
+        <label class="option-item" onclick="selectOption(this,'q11')"><input type="radio" name="q11" value="injuries"><div class="option-box"></div><span class="option-text">Injury / squad news</span></label>
+      </div>
+      <p class="error-msg" id="err-q11">Please select an option.</p>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q12</span><span>How satisfied are you with current goal market odds?</span></div>
+      <div class="options options-grid" data-type="radio" data-required="true" id="q12">
+        <label class="option-item" onclick="selectOption(this,'q12')"><input type="radio" name="q12" value="very_sat"><div class="option-box"></div><span class="option-text">Very satisfied</span></label>
+        <label class="option-item" onclick="selectOption(this,'q12')"><input type="radio" name="q12" value="sat"><div class="option-box"></div><span class="option-text">Satisfied</span></label>
+        <label class="option-item" onclick="selectOption(this,'q12')"><input type="radio" name="q12" value="neutral"><div class="option-box"></div><span class="option-text">Neutral</span></label>
+        <label class="option-item" onclick="selectOption(this,'q12')"><input type="radio" name="q12" value="dissat"><div class="option-box"></div><span class="option-text">Dissatisfied</span></label>
+      </div>
+      <p class="error-msg" id="err-q12">Please select an option.</p>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q13</span><span>What would make you bet on goal markets more often?</span></div>
+      <textarea class="survey-textarea" id="q13" placeholder="e.g. Better live odds, more market types, easier cash out on goal bets..." maxlength="300"></textarea>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" onclick="prevStep(4)">Back</button>
+      <button class="btn-next" onclick="nextStep(4)">Continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: New Markets -->
+  <div class="survey-step" data-step="5">
+    <div class="step-number">05</div>
+    <h2 class="step-title">New markets</h2>
+    <p class="step-desc">What would you want betting companies to add or improve?</p>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q14</span><span>Which new goal-related markets would you want bet companies to offer? (select all you'd use)</span></div>
+      <div class="multi-options" data-type="checkbox" id="q14">
+        <label class="option-item" onclick="toggleCheckbox(this,'q14')"><input type="checkbox" name="q14" value="ou35"><div class="option-box"></div><span class="option-text">Over/Under 3.5 goals</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q14')"><input type="checkbox" name="q14" value="minute_goal"><div class="option-box"></div><span class="option-text">Minute of first goal</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q14')"><input type="checkbox" name="q14" value="goals_intervals"><div class="option-box"></div><span class="option-text">Goals in time intervals (0–30, 30–60…)</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q14')"><input type="checkbox" name="q14" value="both_halves"><div class="option-box"></div><span class="option-text">Team to score in both halves</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q14')"><input type="checkbox" name="q14" value="clean_sheet"><div class="option-box"></div><span class="option-text">Clean sheet + score double</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q14')"><input type="checkbox" name="q14" value="player_goals_assists"><div class="option-box"></div><span class="option-text">Player goals + assists combo</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q14')"><input type="checkbox" name="q14" value="xg_market"><div class="option-box"></div><span class="option-text">xG (expected goals) market</span></label>
+        <label class="option-item" onclick="toggleCheckbox(this,'q14')"><input type="checkbox" name="q14" value="comeback"><div class="option-box"></div><span class="option-text">Win from behind market</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q15</span><span>What feature do you most want improved in existing goal markets?</span></div>
+      <div class="options" data-type="radio" data-required="true" id="q15">
+        <label class="option-item" onclick="selectOption(this,'q15')"><input type="radio" name="q15" value="better_odds"><div class="option-box"></div><span class="option-text">Better / fairer odds</span></label>
+        <label class="option-item" onclick="selectOption(this,'q15')"><input type="radio" name="q15" value="cashout"><div class="option-box"></div><span class="option-text">Cash out available on all goal markets</span></label>
+        <label class="option-item" onclick="selectOption(this,'q15')"><input type="radio" name="q15" value="live"><div class="option-box"></div><span class="option-text">More live / in-play goal options</span></label>
+        <label class="option-item" onclick="selectOption(this,'q15')"><input type="radio" name="q15" value="stats_integration"><div class="option-box"></div><span class="option-text">Stats shown alongside odds</span></label>
+        <label class="option-item" onclick="selectOption(this,'q15')"><input type="radio" name="q15" value="bet_builder"><div class="option-box"></div><span class="option-text">Bet builder that includes goal markets</span></label>
+      </div>
+      <p class="error-msg" id="err-q15">Please select an option.</p>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q16</span><span>Do you currently use any stats or analytics tools for betting?</span></div>
+      <div class="options" data-type="radio" data-required="true" id="q16">
+        <label class="option-item" onclick="selectOption(this,'q16')"><input type="radio" name="q16" value="paid"><div class="option-box"></div><span class="option-text">Yes, I pay for a tool</span></label>
+        <label class="option-item" onclick="selectOption(this,'q16')"><input type="radio" name="q16" value="free"><div class="option-box"></div><span class="option-text">Yes, free tools only</span></label>
+        <label class="option-item" onclick="selectOption(this,'q16')"><input type="radio" name="q16" value="want"><div class="option-box"></div><span class="option-text">No, but I'd like to</span></label>
+        <label class="option-item" onclick="selectOption(this,'q16')"><input type="radio" name="q16" value="no"><div class="option-box"></div><span class="option-text">No, not interested</span></label>
+      </div>
+      <p class="error-msg" id="err-q16">Please select an option.</p>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num">Q17</span><span>How much would you pay monthly for a reliable goal-market analytics tool?</span></div>
+      <div class="options options-grid" data-type="radio" data-required="true" id="q17">
+        <label class="option-item" onclick="selectOption(this,'q17')"><input type="radio" name="q17" value="free"><div class="option-box"></div><span class="option-text">I wouldn't pay</span></label>
+        <label class="option-item" onclick="selectOption(this,'q17')"><input type="radio" name="q17" value="u5"><div class="option-box"></div><span class="option-text">Under $5</span></label>
+        <label class="option-item" onclick="selectOption(this,'q17')"><input type="radio" name="q17" value="5-10"><div class="option-box"></div><span class="option-text">$5–$10</span></label>
+        <label class="option-item" onclick="selectOption(this,'q17')"><input type="radio" name="q17" value="10-20"><div class="option-box"></div><span class="option-text">$10–$20</span></label>
+      </div>
+      <p class="error-msg" id="err-q17">Please select an option.</p>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" onclick="prevStep(5)">Back</button>
+      <button class="btn-next" onclick="nextStep(5)">Claim my reward</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: Reward -->
+  <div class="survey-step" data-step="6">
+    <div class="step-number">06</div>
+    <h2 class="step-title">Claim your access</h2>
+    <p class="step-desc">You're done. Enter your email to unlock 14 days of BetData Pro — free.</p>
+
+    <div class="reward-box">
+      <div class="reward-icon">BD</div>
+      <h3 class="reward-title">BetData Pro — 14 Days Free</h3>
+      <p class="reward-desc">Full access to goal market analytics, team form trends, and live data — no card required.</p>
+      <div class="reward-features">
+        <div class="reward-feature">Goal prediction models</div>
+        <div class="reward-feature">Team form trends</div>
+        <div class="reward-feature">Head-to-head stats</div>
+        <div class="reward-feature">Live in-play data</div>
+        <div class="reward-feature">Odds comparison</div>
+        <div class="reward-feature">Bet tracking dashboard</div>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="question-label"><span class="q-num"></span><span>Your email address</span></div>
+      <div class="email-wrap">
+        <input class="email-input" type="email" id="emailInput" placeholder="you@example.com">
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
+        Your email is used only to send your access link. Your survey responses are stored anonymously. We never sell your email.
+      </p>
+      <p class="error-msg" id="err-email">Please enter a valid email address.</p>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" onclick="prevStep(6)">Back</button>
+      <button class="btn-next" onclick="submitSurvey()" style="background: var(--green);">Get my free access</button>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══ SUCCESS ══ -->
+<div id="success">
+  <div class="success-ring">
+    <div class="success-check">✓</div>
+  </div>
+  <h2 class="success-title">You're in.</h2>
+  <p class="success-sub">Check your inbox — your BetData Pro access link is on its way. Thank you for helping shape the future of football betting.</p>
+  <div class="success-token" id="successToken">ACCESS · BETDATA-XXXXXX</div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-logo">BET<span>DATA</span></div>
+  <div class="footer-legal">© 2025 BetData · All responses anonymous · NDPR compliant</div>
+</footer>
+
+<script>
+  const tickerItems = ['GOAL MARKET RESEARCH','BETTOR INSIGHTS','FOOTBALL DATA','POWERED BY YOU','SHAPE THE ODDS','ANONYMOUS & SECURE','FREE BETDATA PRO ACCESS'];
+  const ti = document.getElementById('tickerInner');
+  const doubled = [...tickerItems, ...tickerItems];
+  ti.innerHTML = doubled.map(t => `<span>${t}</span><span class="ticker-dot">·</span>`).join('');
+
+  let currentStep = 1;
+  const totalSteps = 6;
+  const answers = {};
+
+  function startSurvey() {
+    document.getElementById('hero').style.display = 'none';
+    document.querySelector('.ticker').style.display = 'none';
+    document.getElementById('survey').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateProgress(1);
+  }
+
+  function updateProgress(step) {
+    const pct = Math.round(((step - 1) / totalSteps) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+    const labels = ['','Quick check','Your profile','How you bet','Goal markets','New markets','Claim reward'];
+    document.getElementById('progressLabel').textContent = (labels[step] || '') + ' · ' + step + ' of ' + totalSteps;
+  }
+
+  function selectOption(el, qId, action) {
+    const container = document.getElementById(qId);
+    container.querySelectorAll('.option-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+    answers[qId] = el.querySelector('input').value;
+    hideError('err-' + qId);
+    if (action === 'exit') showExit();
+  }
+
+  function toggleCheckbox(el, qId) {
+    el.classList.toggle('selected');
+    el.querySelector('input').checked = el.classList.contains('selected');
+    if (!answers[qId]) answers[qId] = [];
+    const val = el.querySelector('input').value;
+    if (el.classList.contains('selected')) {
+      if (!answers[qId].includes(val)) answers[qId].push(val);
+    } else {
+      answers[qId] = answers[qId].filter(v => v !== val);
+    }
+  }
+
+  function hideError(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  }
+
+  function showError(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('show');
+  }
+
+  function validateStep(step) {
+    const stepEl = document.querySelector(`.survey-step[data-step="${step}"]`);
+    const required = stepEl.querySelectorAll('[data-required="true"]');
+    let valid = true;
+    required.forEach(el => {
+      const qId = el.id;
+      if (!answers[qId]) {
+        showError('err-' + qId);
+        valid = false;
+      }
+    });
+    return valid;
+  }
+
+  function nextStep(from) {
+    if (!validateStep(from)) return;
+    const next = from + 1;
+    document.querySelector(`.survey-step[data-step="${from}"]`).classList.remove('active');
+    document.querySelector(`.survey-step[data-step="${next}"]`).classList.add('active');
+    currentStep = next;
+    updateProgress(next);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function prevStep(from) {
+    const prev = from - 1;
+    document.querySelector(`.survey-step[data-step="${from}"]`).classList.remove('active');
+    document.querySelector(`.survey-step[data-step="${prev}"]`).classList.add('active');
+    currentStep = prev;
+    updateProgress(prev);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showExit() {
+    document.getElementById('survey').innerHTML = `
+      <div style="text-align:center; padding: 80px 24px;">
+        <p style="font-family:'Bebas Neue',sans-serif; font-size:36px; margin-bottom:12px;">Thanks for stopping by</p>
+        <p style="color:var(--text-muted); font-size:14px; line-height:1.7; max-width:360px; margin:0 auto;">This survey is for football bettors. Come back if you ever start betting — BetData Pro will still be waiting.</p>
+      </div>`;
+  }
+
+  function submitSurvey() {
+    const email = document.getElementById('emailInput').value.trim();
+    const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailReg.test(email)) {
+      showError('err-email');
+      return;
+    }
+    answers['email'] = email;
+    answers['q13'] = document.getElementById('q13').value;
+    console.log('Survey data:', JSON.stringify(answers, null, 2));
+
+    document.getElementById('survey').style.display = 'none';
+    document.querySelector('footer').style.display = 'none';
+    const successEl = document.getElementById('success');
+    successEl.classList.add('visible');
+    const token = 'BETDATA-' + Math.random().toString(36).substring(2,8).toUpperCase();
+    document.getElementById('successToken').textContent = 'ACCESS · ' + token;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
